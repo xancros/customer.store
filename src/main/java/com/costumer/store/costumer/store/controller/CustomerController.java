@@ -1,22 +1,22 @@
 package com.costumer.store.costumer.store.controller;
 
 import com.costumer.store.costumer.store.entity.Customer;
+import com.costumer.store.costumer.store.entity.SingleOrder;
 import com.costumer.store.costumer.store.model.CustomerModel;
+import com.costumer.store.costumer.store.model.ProductModel;
 import com.costumer.store.costumer.store.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "/customer")
 public class CustomerController {
 
-    private CustomerService customerService;
-
     @Autowired
-    public CustomerController (CustomerService customerService){this.customerService=customerService;}
-
+    private CustomerService customerService;
 
     @PostMapping(path = "/users/create")
     public String createNewUser(@RequestBody CustomerModel customerModel){
@@ -36,4 +36,14 @@ public class CustomerController {
     public Iterable<Customer> findCustomersWithSameEmailType(@PathVariable("type") String type){
         return customerService.findCustomersByEmailType(type);
     }
+
+    @GetMapping(path = "/users/all")
+    public List<Customer> getAllCustomers(){
+        return customerService.getAllCustomers();
+    }
+
+   @PostMapping(path = "/users/saveProduct&userName={userName}&productName={productName}")
+    public SingleOrder saveSingleProductOrder(@PathVariable("userName") String userName, @PathVariable("productName") String productName){
+        return customerService.storeSingleOrder(userName,productName);
+   }
 }

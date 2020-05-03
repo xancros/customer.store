@@ -1,19 +1,31 @@
 package com.costumer.store.costumer.store.service;
 
 import com.costumer.store.costumer.store.entity.Customer;
+import com.costumer.store.costumer.store.entity.SingleOrder;
 import com.costumer.store.costumer.store.model.CustomerModel;
+import com.costumer.store.costumer.store.model.ProductModel;
 import com.costumer.store.costumer.store.repository.CustomerRepository;
+import com.costumer.store.costumer.store.repository.SingleOrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class CustomerService {
+    RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${store.url}")
+    String url;
 
     @Autowired
-    private CustomerRepository custumerRepository;
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private SingleOrderRepository singleOrderRepository;
 
     public boolean createNewUser(CustomerModel customerModel){
         Customer customer = new Customer();
@@ -24,7 +36,7 @@ public class CustomerService {
         customer.setSurname(customerModel.getSurname());
         customer.setPassword(customerModel.getPassword());
         try {
-            custumerRepository.save(customer);
+            customerRepository.save(customer);
         }catch (Exception ex){
             return false;
         }
@@ -32,13 +44,46 @@ public class CustomerService {
     }
 
     public Optional<Customer> findByUser(String user){
-         return custumerRepository.findByUser(user);
+         return customerRepository.findByUser(user);
     }
 
     public Iterable<Customer> findCustomersByEmailType(String type){
-        return custumerRepository.findCustomersByEmailType(type);
+        return customerRepository.findCustomersByEmailType(type);
     }
 
+    public List<Customer> getAllCustomers(){return customerRepository.findAll();}
+
+    public SingleOrder storeSingleOrder(String userName, String productName){
+        Optional<Customer> customerOptional = this.findByUser(userName);
+        //Call Store service to find the product
+        ProductModel productModel = restTemplate.getForObject(url+"/findProduct&name="+productName,ProductModel.class);
+        /*
+        Product:{
+                  "id": 1,
+                  "name": "TestProduct",
+                  "category": 1,
+                  "price": 1.2,
+                  "visibility": 1
+                }
+         */
+
+        if(customerOptional.isPresent() && productModel != null && productModel.getId()>=0) {
+            SingleOrder singleOrder = new SingleOrder();
+            singleOrder.setIdUser(customerOptional.get().getIdUser());
+            singleOrder.setUserName(customerOptional.get().getUser());
+            singleOrder.setProductName(productModel.getName());
+            try {
+                singleOrderRepository.save(singleOrder);
+                return singleOrder;
+            } catch (Exception ex) {
+                return null;
+            }
+        }
+        return null;
+
+    }
+
+    
     /*public int logCustomer(CustomerModel m){
 
 

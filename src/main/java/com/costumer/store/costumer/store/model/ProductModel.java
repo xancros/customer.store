@@ -5,6 +5,7 @@ public class ProductModel {
     private int category;
     private float price;
     private int visibility;
+    private Long id;
 
     public ProductModel() {
     }
@@ -39,5 +40,13 @@ public class ProductModel {
 
     public void setVisibility(int visibility) {
         this.visibility = visibility;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
