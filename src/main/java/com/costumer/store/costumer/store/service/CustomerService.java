@@ -16,10 +16,9 @@ import java.util.Optional;
 
 @Service
 public class CustomerService {
-    RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${store.url}")
-    String url;
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -56,7 +55,7 @@ public class CustomerService {
     public SingleOrder storeSingleOrder(String userName, String productName){
         Optional<Customer> customerOptional = this.findByUser(userName);
         //Call Store service to find the product
-        ProductModel productModel = restTemplate.getForObject(url+"/findProduct&name="+productName,ProductModel.class);
+        ProductModel productModel = restTemplate.getForObject("http://THEBESTSTORE/products/findProduct&name="+productName,ProductModel.class);
         /*
         Product:{
                   "id": 1,
